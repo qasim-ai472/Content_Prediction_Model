@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Content Type Predictor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #14213D;
+    --panel: #1B2C4E;
+    --panel-edge: #2B3E64;
+    --ink: #F3EFE4;
+    --ink-dim: #93A0C2;
+    --gold: #D4A64A;
+    --teal: #59B7AC;
+    --line: #3A4D74;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    background-image:
+      radial-gradient(circle at 15% 20%, rgba(212,166,74,0.06), transparent 40%),
+      radial-gradient(circle at 85% 80%, rgba(89,183,172,0.05), transparent 45%);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+  }
+
+  .wrap {
+    width: 100%;
+    max-width: 480px;
+  }
+
+  .eyebrow-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 10px;
+    color: var(--ink-dim);
+    font-size: 13px;
+  }
+
+  .eyebrow-row .tag {
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: 0.02em;
+  }
+
+  h1 {
+    font-family: 'Newsreader', serif;
+    font-weight: 500;
+    font-size: 30px;
+    line-height: 1.25;
+    margin: 0 0 6px;
+  }
+
+  .sub {
+    color: var(--ink-dim);
+    font-size: 14.5px;
+    line-height: 1.5;
+    margin: 0 0 24px;
+    max-width: 40ch;
+  }
+
+  .card {
+    position: relative;
+    background: var(--panel);
+    border: 1px solid var(--panel-edge);
+    padding: 28px 26px 24px;
+    overflow: hidden;
+  }
+
+  /* the single deliberate motif: a library-catalog card, torn at the top */
+  .card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 18px;
+    background-image: repeating-linear-gradient(
+      90deg, transparent, transparent 6px, var(--bg) 6px, var(--bg) 9px
+    );
+    background-position: top;
+    background-size: 100% 2px;
+    background-repeat: no-repeat;
+  }
+
+  .punch {
+    position: absolute;
+    top: 9px; left: 50%;
+    width: 10px; height: 10px;
+    background: var(--bg);
+    border-radius: 50%;
+    transform: translateX(-50%);
+  }
+
+  .field {
+    margin-bottom: 16px;
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    color: var(--ink-dim);
+    margin-bottom: 6px;
+  }
+
+  select, input[type="number"] {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    padding: 10px 12px;
+    font-size: 14.5px;
+    font-family: 'IBM Plex Sans', sans-serif;
+  }
+
+  select:focus, input:focus {
+    outline: none;
+    border-color: var(--gold);
+  }
+
+  .hint {
+    font-size: 12px;
+    color: var(--ink-dim);
+    margin-top: 5px;
+    line-height: 1.4;
+  }
+
+  .row-two {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  button {
+    width: 100%;
+    margin-top: 6px;
+    background: var(--gold);
+    color: #1B2C4E;
+    border: none;
+    padding: 13px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: 'IBM Plex Sans', sans-serif;
+    cursor: pointer;
+    transition: transform 0.12s ease, background 0.12s ease;
+  }
+
+  button:hover { background: #E3B75E; }
+  button:active { transform: scale(0.98); }
+
+  #result {
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px dashed var(--line);
+    display: none;
+  }
+
+  #result.show { display: block; }
+
+  .verdict {
+    font-family: 'Newsreader', serif;
+    font-size: 24px;
+    font-style: italic;
+  }
+
+  .verdict.movie { color: var(--gold); }
+  .verdict.tv { color: var(--teal); }
+
+  .confidence-bar {
+    height: 4px;
+    background: var(--line);
+    margin-top: 10px;
+    overflow: hidden;
+  }
+
+  .confidence-fill {
+    height: 100%;
+    background: var(--gold);
+    width: 0%;
+    transition: width 0.5s ease;
+  }
+
+  .confidence-fill.tv { background: var(--teal); }
+
+  .confidence-label {
+    font-size: 12px;
+    color: var(--ink-dim);
+    margin-top: 6px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  footer {
+    margin-top: 18px;
+    font-size: 12px;
+    color: var(--ink-dim);
+    line-height: 1.6;
+  }
+
+  footer .model-name { color: var(--ink); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow-row">
+    <span>Catalog classifier</span>
+    <span class="tag">no. 002</span>
+  </div>
+
+  <h1>Is it a movie, or a show?</h1>
+  <p class="sub">Describe a title using the same fields Netflix's own catalog tracks, and the model will guess how it was filed.</p>
+
+  <div class="card">
+    <div class="punch"></div>
+
+    <div class="field">
+      <label for="genre">Primary genre</label>
+      <select id="genre">
+        {% for g in genre_options %}
+        <option value="{{ g }}">{{ g }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="row-two">
+      <div class="field">
+        <label for="rating">Rating</label>
+        <select id="rating">
+          {% for r in rating_options %}
+          <option value="{{ r }}">{{ r }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="field">
+        <label for="country">Country</label>
+        <select id="country">
+          {% for c in country_options %}
+          <option value="{{ c }}">{{ c }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div class="row-two">
+      <div class="field">
+        <label for="year">Release year</label>
+        <input type="number" id="year" value="{{ year_max }}" min="{{ year_min }}" max="{{ year_max }}">
+      </div>
+      <div class="field">
+        <label for="duration">Duration (number only)</label>
+        <input type="number" id="duration" value="90" min="1">
+      </div>
+    </div>
+    <p class="hint">Enter just the number as it appears in the catalog — 90 for "90 min", 1 for "1 Season" — without saying which unit it is. That's exactly the part the model has to work out.</p>
+
+    <button onclick="predict()">Predict content type</button>
+
+    <div id="result">
+      <div class="verdict" id="verdict-text"></div>
+      <div class="confidence-bar"><div class="confidence-fill" id="confidence-fill"></div></div>
+      <div class="confidence-label" id="confidence-label"></div>
+    </div>
+  </div>
+
+  <footer>
+    Best performer during training: <span class="model-name">{{ best_model_name }}</span>
+    ({{ (results[best_model_name]['accuracy'] * 100) | round(2) }}% test accuracy)
+  </footer>
+
+</div>
+
+<script>
+async function predict() {
+  const body = {
+    genre: document.getElementById('genre').value,
+    rating: document.getElementById('rating').value,
+    country: document.getElementById('country').value,
+    release_year: document.getElementById('year').value,
+    duration_value: document.getElementById('duration').value,
+  };
+
+  const res = await fetch('/predict', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json();
+
+  const isMovie = data.prediction === 'Movie';
+  const verdict = document.getElementById('verdict-text');
+  verdict.textContent = 'Filed as: ' + data.prediction;
+  verdict.className = 'verdict ' + (isMovie ? 'movie' : 'tv');
+
+  const fill = document.getElementById('confidence-fill');
+  fill.className = 'confidence-fill' + (isMovie ? '' : ' tv');
+  fill.style.width = (data.confidence || 0) + '%';
+
+  document.getElementById('confidence-label').textContent =
+    data.confidence ? `model confidence: ${data.confidence}%` : '';
+
+  document.getElementById('result').classList.add('show');
+}
+</script>
+</body>
+</html>
