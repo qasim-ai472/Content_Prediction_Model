@@ -1,0 +1,104 @@
+{
+  "best_model_name": "Logistic Regression",
+  "feature_order": [
+    "primary_genre",
+    "rating",
+    "country_group",
+    "release_year",
+    "duration_value"
+  ],
+  "genre_options": [
+    "Action & Adventure",
+    "British TV Shows",
+    "Children & Family Movies",
+    "Comedies",
+    "Crime TV Shows",
+    "Documentaries",
+    "Docuseries",
+    "Dramas",
+    "Horror Movies",
+    "International TV Shows",
+    "Kids' TV",
+    "Other",
+    "Stand-Up Comedy"
+  ],
+  "rating_options": [
+    "G",
+    "NC-17",
+    "NR",
+    "PG",
+    "PG-13",
+    "R",
+    "TV-14",
+    "TV-G",
+    "TV-MA",
+    "TV-PG",
+    "TV-Y",
+    "TV-Y7",
+    "TV-Y7-FV",
+    "UR"
+  ],
+  "country_options": [
+    "Canada",
+    "India",
+    "Japan",
+    "Not Given",
+    "Other",
+    "Pakistan",
+    "South Korea",
+    "United Kingdom",
+    "United States"
+  ],
+  "release_year_min": 1925,
+  "release_year_max": 2021,
+  "results": {
+    "Logistic Regression": {
+      "accuracy": 0.9989,
+      "precision": 0.9963,
+      "recall": 1.0,
+      "f1_score": 0.9981,
+      "confusion_matrix": [
+        [
+          1223,
+          2
+        ],
+        [
+          0,
+          533
+        ]
+      ]
+    },
+    "Random Forest": {
+      "accuracy": 0.9989,
+      "precision": 0.9963,
+      "recall": 1.0,
+      "f1_score": 0.9981,
+      "confusion_matrix": [
+        [
+          1223,
+          2
+        ],
+        [
+          0,
+          533
+        ]
+      ]
+    },
+    "Gradient Boosting": {
+      "accuracy": 0.9989,
+      "precision": 0.9963,
+      "recall": 1.0,
+      "f1_score": 0.9981,
+      "confusion_matrix": [
+        [
+          1223,
+          2
+        ],
+        [
+          0,
+          533
+        ]
+      ]
+    }
+  }
+}
